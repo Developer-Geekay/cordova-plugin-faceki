@@ -1,8 +1,21 @@
+buildscript {
+    ext.kotlin_version = "1.9.22"
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'kotlin-android'
+
 repositories {
     maven { url "https://jitpack.io" }
 }
 
 dependencies {
-    // Replaced 'Tag' with '2.0'
-    implementation 'com.github.faceki:blaze-android-sdk:2.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'com.github.faceki:blaze-android-sdk:3.0'
 }

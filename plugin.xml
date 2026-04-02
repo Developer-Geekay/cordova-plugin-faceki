@@ -18,7 +18,11 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/FaceKiPlugin.java" target-dir="src/com/geekay/plugin/faceki" />
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+        </config-file>
+
+        <source-file src="src/android/FaceKiPlugin.kt" target-dir="src/com/geekay/plugin/faceki" />
 
         <framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />
     </platform>
