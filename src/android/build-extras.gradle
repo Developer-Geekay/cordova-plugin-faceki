@@ -1,0 +1,8 @@
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    // Replaced 'Tag' with '2.0'
+    implementation 'com.github.faceki:blaze-android-sdk:2.0'
+}

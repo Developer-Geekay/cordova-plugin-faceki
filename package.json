@@ -1,0 +1,26 @@
+{
+  "name": "cordova-plugin-faceki",
+  "version": "1.0.0",
+  "description": "Cordova plugin for FaceKi Blaze Android SDK",
+  "cordova": {
+    "id": "cordova-plugin-faceki",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/faceki/cordova-plugin-faceki.git"
+  },
+  "keywords": [
+    "cordova",
+    "faceki",
+    "kyc",
+    "verification",
+    "android",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "FaceKi",
+  "license": "Apache-2.0"
+}
