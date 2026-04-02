@@ -87,8 +87,21 @@ class FaceKiPlugin : CordovaPlugin() {
                         Thread.setDefaultUncaughtExceptionHandler(originalHandler)
                         try {
                             val response = JSONObject().apply {
-                                put("json", json)
+                                // Parse the raw JSON string into an object when possible so
+                                // consumers get a structured payload rather than a raw string.
+                                // Falls back to the raw string if it is not valid JSON.
+                                if (json != null) {
+                                    try {
+                                        put("data", JSONObject(json))
+                                    } catch (e: JSONException) {
+                                        put("data", json)
+                                    }
+                                }
                             }
+                            // VerificationResult is a sealed class with exactly two variants:
+                            //   ResultOk       — the user completed the KYC flow
+                            //   ResultCanceled — the user pressed back / cancelled
+                            // Both cases carry the API response in `json`; the when is exhaustive.
                             when (result) {
                                 is VerificationResult.ResultOk -> {
                                     response.put("status", "ResultOk")
@@ -96,10 +109,6 @@ class FaceKiPlugin : CordovaPlugin() {
                                 }
                                 is VerificationResult.ResultCanceled -> {
                                     response.put("status", "ResultCanceled")
-                                    callbackContext.error(response)
-                                }
-                                else -> {
-                                    response.put("status", "Unknown")
                                     callbackContext.error(response)
                                 }
                             }
