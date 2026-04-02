@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     id="cordova-plugin-faceki"
     version="1.0.0">
-    <name>FaceKi Plugin</name>
+    <name>FaceKi Blaze SDK</name>
     <description>Cordova plugin for FaceKi Blaze Android SDK</description>
     <license>Apache 2.0</license>
     <keywords>cordova,faceki,kyc,verification,android</keywords>
@@ -18,7 +18,7 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/FaceKiPlugin.java" target-dir="src/com/geekay/plugin/faceki/cordova" />
+        <source-file src="src/android/FaceKiPlugin.java" target-dir="src/com/geekay/plugin/faceki" />
 
         <framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />
     </platform>
