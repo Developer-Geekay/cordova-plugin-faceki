@@ -3,10 +3,14 @@ var exec = require('cordova/exec');
 var FaceKiPlugin = {
     /**
      * Start KYC Verification
-     * @param {string} verificationLink 
-     * @param {string} recordIdentifier 
-     * @param {function} successCallback 
-     * @param {function} errorCallback 
+     * @param {string} verificationLink - The link ID (UUID) from the 'data' field of the
+     *   FaceKi link-generation API response, e.g. "b1031cff-4ecd-46dd-9aae-a2be2336a123".
+     *   A full URL such as "https://verification.faceki.com/<uuid>" is also accepted;
+     *   the plugin will extract the UUID automatically.
+     * @param {string} recordIdentifier - Your internal record/user identifier
+     * @param {function} successCallback - Called with { status: "ResultOk", json: "..." }
+     * @param {function} errorCallback   - Called with { status: "ResultCanceled"|"Unknown", json: "..." }
+     *                                     or a string error message if the SDK crashes
      */
     startKycVerification: function (verificationLink, recordIdentifier, successCallback, errorCallback) {
         exec(successCallback, errorCallback, 'FaceKiPlugin', 'startKycVerification', [verificationLink, recordIdentifier]);

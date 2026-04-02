@@ -1,5 +1,6 @@
 package com.geekay.plugin.faceki
 
+import android.util.Log
 import com.faceki.android.FaceKi
 import com.faceki.android.KycResponseHandler
 import com.faceki.android.VerificationResult
@@ -12,8 +13,24 @@ import org.json.JSONObject
 class FaceKiPlugin : CordovaPlugin() {
 
     companion object {
+        private const val TAG = "FaceKiPlugin"
         private const val HTTP_PREFIX = "http"
         private const val DRAWABLE_PREFIX = "R.drawable."
+    }
+
+    /**
+     * The SDK expects just the UUID/link-ID, not a full URL.
+     * e.g. "b1031cff-4ecd-46dd-9aae-a2be2336a123" NOT "https://verification.faceki.com/b1031cff-..."
+     * If the caller passes the full URL we extract the last path segment.
+     */
+    private fun extractLinkId(verificationLink: String): String {
+        return if (verificationLink.startsWith(HTTP_PREFIX)) {
+            verificationLink.substringAfterLast("/").substringBefore("?").also {
+                Log.d(TAG, "Extracted link ID '$it' from full URL")
+            }
+        } else {
+            verificationLink
+        }
     }
 
     override fun execute(action: String, args: JSONArray, callbackContext: CallbackContext): Boolean {
@@ -39,14 +56,35 @@ class FaceKiPlugin : CordovaPlugin() {
         recordIdentifier: String,
         callbackContext: CallbackContext
     ) {
+        val linkId = extractLinkId(verificationLink)
         val activity = cordova.activity
+
+        // The FaceKi SDK v2.x does not catch JsonDataException (a RuntimeException from Moshi)
+        // when the API returns an error body. Install a temporary uncaught-exception guard so
+        // that SDK crashes are surfaced as JS errors instead of crashing the host app.
+        val originalHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            Thread.setDefaultUncaughtExceptionHandler(originalHandler)
+            val rootCause = generateSequence(throwable, Throwable::cause).last()
+            Log.e(TAG, "Uncaught exception: ${rootCause.javaClass.name}: ${rootCause.message}")
+            if (rootCause.javaClass.name.contains("JsonDataException")) {
+                // SDK crashed parsing an error response — report to JS, do not crash the app
+                activity.runOnUiThread {
+                    callbackContext.error("Verification failed: ${rootCause.message ?: "Invalid verification link"}")
+                }
+            } else {
+                originalHandler?.uncaughtException(thread, throwable)
+            }
+        }
+
         cordova.activity.runOnUiThread {
             FaceKi.startKycVerification(
                 context = activity,
-                verificationLink = verificationLink,
+                verificationLink = linkId,
                 recordIdentifier = recordIdentifier,
                 kycResponseHandler = object : KycResponseHandler {
                     override fun handleKycResponse(json: String?, result: VerificationResult) {
+                        Thread.setDefaultUncaughtExceptionHandler(originalHandler)
                         try {
                             val response = JSONObject().apply {
                                 put("json", json)
